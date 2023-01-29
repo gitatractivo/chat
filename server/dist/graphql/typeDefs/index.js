@@ -1,3 +1,3 @@
-import UserTypeDefs from './user.js';
-const typeDefs = UserTypeDefs;
+import userTypeDefs from './user.js';
+const typeDefs = [userTypeDefs];
 export default typeDefs;

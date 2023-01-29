@@ -1,3 +1,4 @@
 import userReslovers from './user.js';
-const resolvers = userReslovers;
+import merge from 'lodash.merge';
+const resolvers = merge({}, userReslovers);
 export default resolvers;

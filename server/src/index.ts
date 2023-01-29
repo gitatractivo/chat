@@ -1,4 +1,3 @@
-// npm install @apollo/server express graphql cors body-parser
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
@@ -8,9 +7,24 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import typeDefs from './graphql/typeDefs/index.js';
 import resolvers from './graphql/resolvers/index.js'
+import { makeExecutableSchema } from '@graphql-tools/schema';
+import * as dotenv from 'dotenv';
+// import { unstable_getServerSession } from 'next-auth/next';
+// import { getSession } from 'next-auth/react';
+import { unstable_getServerSession } from 'next-auth/next';
 
 interface MyContext {
   token?: string;
+}
+
+dotenv.config()
+const schema = makeExecutableSchema({
+  typeDefs,
+  resolvers
+})
+const corsOptions = {
+  origin: process.env.CLIENT_ORIGIN,
+  credentials: true,
 }
 
 // Required logic for integrating with Express
@@ -23,10 +37,10 @@ const httpServer = http.createServer(app);
 // Same ApolloServer initialization as before, plus the drain plugin
 // for our httpServer.
 const server = new ApolloServer<MyContext>({
-  typeDefs,
-  resolvers,
+  schema,
   plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
-});
+  
+},);
 // Ensure we wait for our server to start
 await server.start();
 
@@ -34,15 +48,18 @@ await server.start();
 // and our expressMiddleware function.
 app.use(
   '/',
-  cors<cors.CorsRequest>(),
+  cors<cors.CorsRequest>(corsOptions), 
   bodyParser.json(),
   // expressMiddleware accepts the same arguments:
   // an Apollo Server instance and optional configuration options
   expressMiddleware(server, {
-    context: async ({ req }) => ({ token: req.headers.token }),
+    context: async ({ req , res}) => { 
+      // const session = await getSession({req})
+      // const session = await unstable_getServerSession(req,res,{})
+      // console.log(session);
+      return {} },
   }),
 );
 
-// Modified server startup
 await new Promise<void>((resolve) => httpServer.listen({ port: 4000 }, resolve));
 console.log(`🚀 Server ready at http://localhost:4000/`);

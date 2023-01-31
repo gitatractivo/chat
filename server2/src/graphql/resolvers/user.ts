@@ -7,6 +7,7 @@ const resolvers = {
             args: { username: string },
             context: GraphQLContext,
             ):Promise<Array<User>> => {
+                console.log("search called")
                 const {username:searchedUsername}=args
                 const {session,prisma} = context;
                 
@@ -27,6 +28,7 @@ const resolvers = {
                             }
                         }
                     })
+                    // console.log("users",users)
                     return users
                 } catch (error:any) {
                     console.log("searchUsers Error", error)

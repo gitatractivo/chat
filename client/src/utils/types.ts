@@ -1,3 +1,4 @@
+import { ConversationPopulated } from '../../../server2/src/util/types';
 export interface CreateUsernameData {
   createUsername: {
     success: boolean,
@@ -17,4 +18,21 @@ export interface SearchUserData {
 export interface SearchedUser {
   id: string, 
   username: string 
+}
+
+// conversatoins
+
+export interface CreateConversationData{
+  createConversation:{
+    conversationId: string
+  }
+}
+
+export interface CreateConversationInput {
+  participantIds: Array<String>
+}
+
+
+export interface ConversationsData{
+  conversations: Array<ConversationPopulated>
 }

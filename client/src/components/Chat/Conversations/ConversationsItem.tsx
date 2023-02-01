@@ -17,6 +17,7 @@ import { MdDeleteOutline } from "react-icons/md";
 import { BiLogOut } from "react-icons/bi";
 import { GoPrimitiveDot } from "react-icons/go";
 import { formatRelative } from "date-fns";
+import { formatUsernames } from "../../../utils/functions";
 
 interface Props {
   conversation: ConversationPopulated;
@@ -39,6 +40,7 @@ const ConversationsItem = ({
   isSelected,
 }: Props) => {
   const [menuOpen, setMenuOpen] = useState(false);
+  console.log(conversation)
 
   const handleClick = (event: React.MouseEvent) => {
     if (event.type === "click") {
@@ -114,21 +116,21 @@ const ConversationsItem = ({
                 overflow="hidden"
                 textOverflow="ellipsis"
               >
-                {conversation.latestMessage.body}
+              {conversation.latestMessage.body}
               </Text>
             </Box>
           )}
         </Flex>
-        <Text color="whiteAlpha.700" textAlign="right">
-          {formatRelative(conversation.updateAt , new Date(),{
+        <Text color="whiteAlpha.700" textAlign="right" position="absolute" right={4}>
+          {conversation?.updateAt && formatRelative(new Date(conversation?.updateAt) , new Date(),{
             locale:{
               ...enUS,
               formatRelative: (token)=>
                 formatRelativeLocale[
-                  token as key of formatRelativeLocale
+                  token as keyof typeof formatRelativeLocale
                 ],
             }
-          })}
+          })}  
         </Text>
       </Flex>
     </Stack>

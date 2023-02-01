@@ -7,6 +7,7 @@ const resolvers = {
     Query: {
         conversations: async (_: any, __: any, context: GraphQLContext): Promise<Array<ConversationPopulated>> => {
             const { session, prisma } = context;
+            console.log("inside resolvers")
             if (!session?.user) {
                 throw new ApolloError('Not Authorised')
             }
@@ -14,7 +15,7 @@ const resolvers = {
             const { user: { id: userId } } = session;
 
             try {
-                const conversations = await prisma.conversation.findMany({
+                const conversations: Array<ConversationPopulated> = await prisma.conversation.findMany({
                     where: {
                         participants: {
                             some: {
@@ -26,6 +27,7 @@ const resolvers = {
                     },
                     include: conversationPopulated,
                 })
+                console.log("conversations resolver update", (conversations ))
                 return conversations
             } catch (error: any) {
                 console.log('Conversations error', error)
@@ -56,10 +58,13 @@ const resolvers = {
                                     hasSeenLatestMessage: id === userId
                                 }))
                             }
-                        }
+                        },
                     },
                     include: conversationPopulated,
                 })
+
+                console.log("from server",conversation)
+
                 pubsub.publish('CONVERSATION_CREATED', {
                     conversationCreated: conversation,
                 })
@@ -117,7 +122,10 @@ export const conversationPopulated = Prisma.validator<Prisma.ConversationInclude
                 }
             }
         }
-    }
+    },
+    
+
+    
 })
 
 export default resolvers

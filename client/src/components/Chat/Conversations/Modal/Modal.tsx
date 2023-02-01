@@ -71,7 +71,7 @@ const ConversationModal = ({ isOpen, onClose, session }: Props) => {
       if (!conversationData?.createConversation) {
         throw new Error("Failed to create conversation");
       }
-      console.log(conversationData);
+      console.log("conversationData", conversationData);
 
       const {
         createConversation: { conversationId },

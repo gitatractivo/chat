@@ -1,5 +1,5 @@
 import { ConversationPopulated, GraphQLContext, Session } from '../../util/types';
-import { ApolloError } from 'apollo-server-core';
+import { GraphQLError } from 'graphql';
 import { Prisma } from '@prisma/client';
 import { withFilter } from 'graphql-subscriptions';
 
@@ -9,7 +9,7 @@ const resolvers = {
             const { session, prisma } = context;
             console.log("inside resolvers")
             if (!session?.user) {
-                throw new ApolloError('Not Authorised')
+                throw new GraphQLError('Not Authorised')
             }
 
             const { user: { id: userId } } = session;
@@ -27,11 +27,11 @@ const resolvers = {
                     },
                     include: conversationPopulated,
                 })
-                console.log("conversations resolver update", (conversations ))
+                console.log("conversations resolver update", (conversations))
                 return conversations
             } catch (error: any) {
                 console.log('Conversations error', error)
-                throw new ApolloError(error?.message)
+                throw new GraphQLError(error?.message)
             }
 
         }
@@ -44,7 +44,7 @@ const resolvers = {
             const { session, prisma, pubsub } = context
 
             if (!session?.user) {
-                throw new ApolloError('Not Authorised')
+                throw new GraphQLError('Not Authorised')
             }
             const { user: { id: userId } } = session
 
@@ -63,7 +63,7 @@ const resolvers = {
                     include: conversationPopulated,
                 })
 
-                console.log("from server",conversation)
+                console.log("from server", conversation)
 
                 pubsub.publish('CONVERSATION_CREATED', {
                     conversationCreated: conversation,
@@ -75,7 +75,7 @@ const resolvers = {
             } catch (error: any) {
                 console.log('createConversation error')
                 console.log(error)
-                throw new ApolloError('Error creating conversation', error?.message)
+                throw new GraphQLError('Error creating conversation', error?.message)
             }
         }
     },
@@ -86,17 +86,17 @@ const resolvers = {
                 console.log("inside subs")
                 return pubsub.asyncIterator(['CONVERSATION_CREATED'])
             },
-            (payload:ConversationCreatedSubscriptionPayload,_:any,context:GraphQLContext)=>{
-                const {conversationCreated:{participants}}=payload
-                const {session}= context
-                return !!participants.find(p => p.userId === session?.user?.id)
-            })
+                (payload: ConversationCreatedSubscriptionPayload, _: any, context: GraphQLContext) => {
+                    const { conversationCreated: { participants } } = payload
+                    const { session } = context
+                    return !!participants.find(p => p.userId === session?.user?.id)
+                })
         }
     }
 }
 
 
-export interface ConversationCreatedSubscriptionPayload  {
+export interface ConversationCreatedSubscriptionPayload {
     conversationCreated: ConversationPopulated
 }
 
@@ -123,9 +123,9 @@ export const conversationPopulated = Prisma.validator<Prisma.ConversationInclude
             }
         }
     },
-    
 
-    
+
+
 })
 
 export default resolvers

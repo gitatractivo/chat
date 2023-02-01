@@ -1,47 +1,47 @@
 import { User } from '@prisma/client';
-import { ApolloError } from 'apollo-server-core';
+import { GraphQLError } from 'graphql';
 import { GraphQLContext, CreateUsernameResonse } from '../../util/types';
 const resolvers = {
     Query: {
-        searchUsers: async(_: any,
+        searchUsers: async (_: any,
             args: { username: string },
             context: GraphQLContext,
-            ):Promise<Array<User>> => {
-                console.log("search called")
-                const {username:searchedUsername}=args
-                const {session,prisma} = context;
-                
-                if(!session?.user){
-                    throw new ApolloError("Not Authorized") 
-                }
-                const {
-                    user: {username:myUsername},
-                } = session
+        ): Promise<Array<User>> => {
+            console.log("search called")
+            const { username: searchedUsername } = args
+            const { session, prisma } = context;
 
-                try {
-                    const users = await prisma.user.findMany({
-                        where:{
-                            username:{
-                                contains: searchedUsername,
-                                not: myUsername,
-                                mode: 'insensitive'
-                            }
+            if (!session?.user) {
+                throw new GraphQLError("Not Authorized")
+            }
+            const {
+                user: { username: myUsername },
+            } = session
+
+            try {
+                const users = await prisma.user.findMany({
+                    where: {
+                        username: {
+                            contains: searchedUsername,
+                            not: myUsername,
+                            mode: 'insensitive'
                         }
-                    })
-                    // console.log("users",users)
-                    return users
-                } catch (error:any) {
-                    console.log("searchUsers Error", error)
-                    throw new ApolloError(error?.message)
-                }
-         },
+                    }
+                })
+                // console.log("users",users)
+                return users
+            } catch (error: any) {
+                console.log("searchUsers Error", error)
+                throw new GraphQLError(error?.message)
+            }
+        },
     },
     Mutation: {
         createUsername: async (
-            _: any, 
-            args: { username: string }, 
+            _: any,
+            args: { username: string },
             context: GraphQLContext,
-            ): Promise<CreateUsernameResonse> => {
+        ): Promise<CreateUsernameResonse> => {
             const { username } = args
             const { session, prisma } = context
             console.log("hey this is api", username);
@@ -72,12 +72,12 @@ const resolvers = {
                     }
                 })
                 console.log("success");
-                return { success: true } 
+                return { success: true }
 
                 //if username is available then make changes 
 
-            } catch (error:any) {
-               
+            } catch (error: any) {
+
                 console.log("createUsername Error", error)
 
                 return {
